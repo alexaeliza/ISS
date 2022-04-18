@@ -50,7 +50,7 @@ public class SignUpController implements Initializable {
         stage.show();
     }
 
-    public void signUp(ActionEvent actionEvent) {
+    public void signUp(ActionEvent actionEvent) throws IOException {
         User user = repository.getUserByCnp(cnp.getText());
         if (user != null) {
             Alert alert = new Alert(Alert.AlertType.ERROR);
@@ -60,9 +60,15 @@ public class SignUpController implements Initializable {
         else {
             user = new User(cnp.getText(), name.getText(), password.getText(), address.getText());
             repository.addUser(user);
-            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-            alert.setContentText("User created");
-            alert.showAndWait();
+            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("../MainWindow.fxml"));
+            Scene scene = new Scene(fxmlLoader.load(), 700, 400);
+            MainController mainController = fxmlLoader.getController();
+            mainController.setRepository(repository);
+            mainController.setStage(stage);
+            mainController.setUser(user);
+            stage.setTitle("Library");
+            stage.setScene(scene);
+            stage.show();
         }
     }
 }

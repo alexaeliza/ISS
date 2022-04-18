@@ -66,7 +66,7 @@ public class Repository {
     public List<Edition> getEditions() {
         List<Edition> editions = new ArrayList<>();
         try (Connection connection = DriverManager.getConnection(databaseURL, databaseUsername, databasePassword)) {
-            PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM public.\"Editions\"");
+            PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM public.\"Editions\" WHERE rent IS NULL");
             ResultSet resultSet = preparedStatement.executeQuery();
             while (resultSet.next())
             {
