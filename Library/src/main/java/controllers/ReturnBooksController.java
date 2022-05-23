@@ -23,26 +23,19 @@ import java.net.URL;
 import java.util.List;
 import java.util.ResourceBundle;
 
-public class MainController implements Initializable {
-    public Button logOut;
+public class ReturnBooksController implements Initializable {
     public TableView<EditionFXML> books;
-    public TableColumn<EditionFXML, String> title;
     public TableColumn<EditionFXML, String> author;
-    public TableColumn<EditionFXML, Button> add;
-    public Button seeCart;
+    public TableColumn<EditionFXML, String> title;
+    public TableColumn<EditionFXML, Button> returnBook;
 
     private User user;
-    private Stage stage;
     private Repository repository;
+    private Stage stage;
     private ObservableList<EditionFXML> editions = FXCollections.observableArrayList();
-    private ObservableList<Borrowing> borrowings = FXCollections.observableArrayList();
 
     public void setUser(User user) {
         this.user = user;
-    }
-
-    public void setStage(Stage stage) {
-        this.stage = stage;
     }
 
     public void setRepository(Repository repository) {
@@ -50,24 +43,17 @@ public class MainController implements Initializable {
         getItems();
     }
 
-    public void logOut(ActionEvent actionEvent) throws IOException {
-        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("../LogIn.fxml"));
-        Scene scene = new Scene(fxmlLoader.load(), 700, 400);
-        LogInController logInController = fxmlLoader.getController();
-        logInController.setRepository(repository);
-        logInController.setStage(stage);
-        stage.setTitle("Library");
-        stage.setScene(scene);
-        stage.show();
+    public void setStage(Stage stage) {
+        this.stage = stage;
     }
 
     private void getItems() {
-        List<Edition> editionList = repository.getEditions();
-        editionList.forEach(x -> {
-            Button addBook = new Button();
-            addBook.setText("Add");
-            addBook.setOnAction(y -> repository.borrowEditionForUser(x, user));
-            EditionFXML editionFXML = new EditionFXML(x, addBook);
+        List<Borrowing> borrowings = repository.getBorrowingsOfUser(user);
+        borrowings.forEach(x -> {
+            Button returnBook = new Button();
+            returnBook.setText("Return");
+            returnBook.setOnAction(y -> repository.returnEdition(x.getEdition(), user));
+            EditionFXML editionFXML = new EditionFXML(x.getEdition(), returnBook);
             editions.add(editionFXML);
         });
     }
@@ -76,18 +62,18 @@ public class MainController implements Initializable {
     public void initialize(URL location, ResourceBundle resources) {
         title.setCellValueFactory(value -> new SimpleStringProperty(value.getValue().getEdition().getBook().getTitle()));
         author.setCellValueFactory(value -> new SimpleStringProperty(value.getValue().getEdition().getBook().getAuthor()));
-        add.setCellValueFactory(value -> new SimpleObjectProperty(value.getValue().getAddBook()));
+        returnBook.setCellValueFactory(value -> new SimpleObjectProperty(value.getValue().getAddBook()));
         books.setItems(editions);
     }
 
-    public void seeCart(ActionEvent actionEvent) throws IOException {
-        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("../ReturnBooks.fxml"));
+    public void back(ActionEvent actionEvent) throws IOException {
+        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("../MainWindow.fxml"));
         Scene scene = new Scene(fxmlLoader.load(), 700, 400);
-        ReturnBooksController returnBooksController = fxmlLoader.getController();
-        returnBooksController.setUser(user);
-        returnBooksController.setRepository(repository);
-        returnBooksController.setStage(stage);
-        stage.setTitle("Library");
+        MainController mainController = fxmlLoader.getController();
+        mainController.setRepository(repository);
+        mainController.setStage(stage);
+        mainController.setUser(user);
+        stage.setTitle("Blood4Life");
         stage.setScene(scene);
         stage.show();
     }
